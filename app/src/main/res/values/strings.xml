@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">蓝牙配网</string>
+    <string name="ready">就绪</string>
+    <string name="start_scan">扫描蓝牙设备</string>
+</resources>
