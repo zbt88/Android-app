@@ -21,7 +21,6 @@ import kotlinx.coroutines.withTimeout
 import java.util.UUID
 
 private const val TAG = "BleClient"
-private const val CONNECT_TIMEOUT_MS = 10_000L
 private const val CCC_DESCRIPTOR_UUID = "00002902-0000-1000-8000-00805F9B34FB"
 
 /**
@@ -152,9 +151,9 @@ class BleClient(private val context: Context) {
         gatt = g
 
         try {
-            withTimeout(CONNECT_TIMEOUT_MS) { connected.await() }
+            withTimeout(ProtocolConfig.CONNECT_TIMEOUT_MS) { connected.await() }
             g.discoverServices()
-            withTimeout(CONNECT_TIMEOUT_MS) { discovered.await() }
+            withTimeout(ProtocolConfig.CONNECT_TIMEOUT_MS) { discovered.await() }
 
             val service = g.getService(UUID.fromString(ProtocolConfig.SERVICE_UUID))
                 ?: throw IllegalStateException("设备上没有配网服务，请检查 ProtocolConfig.SERVICE_UUID 是否与固件一致")
@@ -164,7 +163,7 @@ class BleClient(private val context: Context) {
                 ?: throw IllegalStateException("设备上没有写入特征，请检查 ProtocolConfig.WRITE_CHAR_UUID")
 
             g.requestMtu(ProtocolConfig.REQUEST_MTU)
-            val mtu = withTimeout(CONNECT_TIMEOUT_MS) { mtuResult.await() }
+            val mtu = withTimeout(ProtocolConfig.CONNECT_TIMEOUT_MS) { mtuResult.await() }
 
             @Suppress("DEPRECATION")
             g.setCharacteristicNotification(notifyChar, true)
@@ -176,7 +175,7 @@ class BleClient(private val context: Context) {
             if (!g.writeDescriptor(cccd)) {
                 throw IllegalStateException("订阅通知请求发送失败")
             }
-            withTimeout(CONNECT_TIMEOUT_MS) { descriptorWritten.await() }
+            withTimeout(ProtocolConfig.CONNECT_TIMEOUT_MS) { descriptorWritten.await() }
 
             writerRef = ChunkedWriter(g, writeChar, (mtu - 3).coerceAtLeast(ProtocolConfig.MIN_CHUNK_SIZE))
             writer = writerRef

@@ -33,9 +33,23 @@ object ProtocolConfig {
     /** 扫描时长（毫秒） */
     const val SCAN_DURATION_MS = 10_000L
 
-    /** 等待设备返回热点列表的超时（毫秒） */
+    /**
+     * 蓝牙连接超时（毫秒）：
+     * 点击设备后，完成「连接 -> 发现服务 -> MTU 协商 -> 订阅通知」整条流程的最大等待时间。
+     */
+    const val CONNECT_TIMEOUT_MS = 10_000L
+
+    /**
+     * 等待设备返回热点列表的超时（毫秒）：
+     * App 发出 get_wifi_list 命令后，等待设备扫描周围 WiFi 并回传列表的最大时间。
+     * 设备扫描慢（如需要扫 2~3 个信道）就调大这个值。
+     */
     const val WIFI_LIST_TIMEOUT_MS = 15_000L
 
-    /** 等待设备返回配网结果的超时（毫秒） */
+    /**
+     * 等待设备连接热点并返回结果的超时（毫秒）：
+     * App 发出 set_wifi 命令（SSID + 密码）后，等待设备连接路由器并回传配网结果的最大时间。
+     * 设备连热点慢或路由器响应慢就调大这个值。
+     */
     const val RESULT_TIMEOUT_MS = 20_000L
 }
