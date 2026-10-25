@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">蓝牙配网</string>
-    <string name="ready">就绪</string>
-    <string name="start_scan">扫描蓝牙设备</string>
+    <string name="scan_hint">点击下方按钮，扫描附近的配网设备</string>
+    <string name="rescan">重新扫描</string>
+    <string name="connect_device">连接设备</string>
+    <string name="password_hint">WiFi 密码</string>
+    <string name="retry">重新配网</string>
 </resources>
