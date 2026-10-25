@@ -30,6 +30,18 @@ object ProtocolConfig {
     /** 设备蓝牙广播名前缀过滤，"" 表示不过滤 */
     const val DEVICE_NAME_PREFIX = ""
 
+    /**
+     * 优先排列的设备名前缀：名称以它开头（如 "DVT_"）的设备排在扫描列表最前面
+     * （组内仍按信号强度排序），其余设备排在后面；"" 表示关闭该功能。
+     */
+    const val PRIORITY_NAME_PREFIX = "DVT_"
+
+    /** 点击了非本设备（没有配网服务/特征的设备）时，屏幕显示的提示信息 */
+    const val UNMATCHED_DEVICE_MSG = "非指定设备，请选择正确设备蓝牙名称连接。"
+
+    /** 设备没有按时返回热点列表时，屏幕显示的提示信息 */
+    const val WIFI_LIST_TIMEOUT_MSG = "设备未返回热点列表，请重新获取"
+
     /** 扫描时长（毫秒） */
     const val SCAN_DURATION_MS = 10_000L
 

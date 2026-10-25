@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var connectedLabel: TextView
     private lateinit var wifiProgress: ProgressBar
     private lateinit var wifiError: TextView
+    private lateinit var retryWifiButton: Button
     private lateinit var wifiList: RecyclerView
     private lateinit var selectedSsid: TextView
     private lateinit var passwordLayout: TextInputLayout
@@ -76,6 +77,7 @@ class MainActivity : AppCompatActivity() {
         wifiList.adapter = wifiAdapter
 
         rescanButton.setOnClickListener { requestPermissionsThen { viewModel.startScan() } }
+        retryWifiButton.setOnClickListener { viewModel.retryWifiList() }
         sendButton.setOnClickListener { onSendClicked() }
         doneButton.setOnClickListener {
             viewModel.resetToScan()
@@ -101,6 +103,7 @@ class MainActivity : AppCompatActivity() {
         connectedLabel = findViewById(R.id.connectedLabel)
         wifiProgress = findViewById(R.id.wifiProgress)
         wifiError = findViewById(R.id.wifiError)
+        retryWifiButton = findViewById(R.id.retryWifiButton)
         wifiList = findViewById(R.id.wifiList)
         selectedSsid = findViewById(R.id.selectedSsid)
         passwordLayout = findViewById(R.id.passwordLayout)
@@ -148,6 +151,8 @@ class MainActivity : AppCompatActivity() {
         wifiProgress.visibility = if (s.wifiLoading) View.VISIBLE else View.GONE
         wifiError.visibility = if (s.wifiError != null) View.VISIBLE else View.GONE
         wifiError.text = s.wifiError
+        retryWifiButton.visibility =
+            if (s.wifiError != null && !s.wifiLoading && !s.provisioning) View.VISIBLE else View.GONE
         wifiAdapter.submit(s.wifiList, s.selectedSsid)
         selectedSsid.visibility = if (s.selectedSsid != null) View.VISIBLE else View.GONE
         selectedSsid.text = "已选热点：${s.selectedSsid}"

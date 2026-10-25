@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.bleprovision.app.ble.BleClient
 import com.bleprovision.app.ble.BleDevice
+import com.bleprovision.app.ble.UnmatchedDeviceException
 import com.bleprovision.app.ble.scanDevices
 import com.bleprovision.app.protocol.JsonProvisioningProtocol
 import com.bleprovision.app.protocol.ProtocolConfig
@@ -55,6 +56,14 @@ class ProvisioningViewModel(application: Application) : AndroidViewModel(applica
     private var timeoutJob: Job? = null
     private val receiveBuffer = mutableListOf<Byte>()
 
+    /**
+     * 扫描列表排序规则：名称匹配优先前缀（ProtocolConfig.PRIORITY_NAME_PREFIX，如 "DVT_"）
+     * 的设备排最前面（组内按信号强度），其余设备按信号强度排在后面。
+     */
+    private val deviceSort =
+        compareByDescending<BleDevice> { it.name.startsWith(ProtocolConfig.PRIORITY_NAME_PREFIX) }
+            .thenByDescending { it.rssi }
+
     fun startScan() {
         if (_state.value.scanning) return
         scanJob?.cancel()
@@ -65,7 +74,7 @@ class ProvisioningViewModel(application: Application) : AndroidViewModel(applica
                     scanDevices(getApplication()).collect { dev ->
                         _state.update { st ->
                             val list = st.devices.filterNot { it.address == dev.address } + dev
-                            st.copy(devices = list.sortedByDescending { it.rssi })
+                            st.copy(devices = list.sortedWith(deviceSort))
                         }
                     }
                 }
@@ -106,6 +115,14 @@ class ProvisioningViewModel(application: Application) : AndroidViewModel(applica
                 requestWifiList()
             } catch (e: CancellationException) {
                 throw e
+            } catch (e: UnmatchedDeviceException) {
+                _state.update {
+                    it.copy(
+                        connecting = false,
+                        connectingName = null,
+                        scanError = ProtocolConfig.UNMATCHED_DEVICE_MSG
+                    )
+                }
             } catch (e: Exception) {
                 _state.update {
                     it.copy(connecting = false, connectingName = null, scanError = e.message ?: "连接失败")
@@ -133,6 +150,13 @@ class ProvisioningViewModel(application: Application) : AndroidViewModel(applica
                 )
             }
         }
+    }
+
+    /** 重新向设备请求热点列表（超时或失败后的重试入口） */
+    fun retryWifiList() {
+        if (_state.value.wifiLoading || _state.value.connectedDevice == null) return
+        _state.update { it.copy(wifiError = null) }
+        requestWifiList()
     }
 
     /** 从完成页返回重新扫描 */
@@ -220,7 +244,7 @@ class ProvisioningViewModel(application: Application) : AndroidViewModel(applica
             _state.update {
                 it.copy(
                     wifiLoading = false,
-                    wifiError = "设备未返回热点列表，请确认固件已实现 get_wifi_list 命令并按协议返回"
+                    wifiError = ProtocolConfig.WIFI_LIST_TIMEOUT_MSG
                 )
             }
         }

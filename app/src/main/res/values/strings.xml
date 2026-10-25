@@ -6,4 +6,5 @@
     <string name="connect_device">连接设备</string>
     <string name="password_hint">WiFi 密码</string>
     <string name="retry">重新配网</string>
+    <string name="retry_wifi">重新获取热点列表</string>
 </resources>

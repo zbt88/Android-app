@@ -23,6 +23,9 @@ import java.util.UUID
 private const val TAG = "BleClient"
 private const val CCC_DESCRIPTOR_UUID = "00002902-0000-1000-8000-00805F9B34FB"
 
+/** 设备不具备配网服务或特征，说明它不是目标设备 */
+class UnmatchedDeviceException(message: String) : IllegalStateException(message)
+
 /**
  * BLE 客户端：负责连接、MTU 协商、订阅通知、按 MTU 分片写入。
  * 服务/特征 UUID 等参数见 ProtocolConfig。
@@ -86,7 +89,7 @@ class BleClient(private val context: Context) {
                     discovered.complete(Unit)
                 } else {
                     discovered.completeExceptionally(
-                        IllegalStateException("发现服务失败（状态码 $status）")
+                        UnmatchedDeviceException("发现服务失败（状态码 $status）")
                     )
                 }
             }
@@ -156,11 +159,11 @@ class BleClient(private val context: Context) {
             withTimeout(ProtocolConfig.CONNECT_TIMEOUT_MS) { discovered.await() }
 
             val service = g.getService(UUID.fromString(ProtocolConfig.SERVICE_UUID))
-                ?: throw IllegalStateException("设备上没有配网服务，请检查 ProtocolConfig.SERVICE_UUID 是否与固件一致")
+                ?: throw UnmatchedDeviceException("设备上没有配网服务")
             val notifyChar = service.getCharacteristic(UUID.fromString(ProtocolConfig.NOTIFY_CHAR_UUID))
-                ?: throw IllegalStateException("设备上没有通知特征，请检查 ProtocolConfig.NOTIFY_CHAR_UUID")
+                ?: throw UnmatchedDeviceException("设备上没有通知特征")
             val writeChar = service.getCharacteristic(UUID.fromString(ProtocolConfig.WRITE_CHAR_UUID))
-                ?: throw IllegalStateException("设备上没有写入特征，请检查 ProtocolConfig.WRITE_CHAR_UUID")
+                ?: throw UnmatchedDeviceException("设备上没有写入特征")
 
             g.requestMtu(ProtocolConfig.REQUEST_MTU)
             val mtu = withTimeout(ProtocolConfig.CONNECT_TIMEOUT_MS) { mtuResult.await() }
