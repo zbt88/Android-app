@@ -127,10 +127,10 @@ class BleClient(private val context: Context) {
                 }
             }
 
-            // Android 13+ 系统调用新回调
+            // Android 13+ 系统调用新回调（第二个参数是特征 ID，非对象引用）
             override fun onCharacteristicWrite(
                 g: BluetoothGatt,
-                characteristic: BluetoothGattCharacteristic,
+                characteristicId: Int,
                 value: ByteArray,
                 status: Int
             ) {
