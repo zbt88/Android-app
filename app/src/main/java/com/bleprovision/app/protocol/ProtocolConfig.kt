@@ -13,13 +13,13 @@ package com.bleprovision.app.protocol
 object ProtocolConfig {
 
     /** 设备提供的配网服务 UUID（占位值，请改成你固件的 UUID） */
-    const val SERVICE_UUID = "0000FE00-0000-1000-8000-00805F9B34FB"
+    const val SERVICE_UUID = "0000FFF0-0000-1000-8000-00805F9B34FB"
 
     /** App -> 设备 写特征 UUID */
-    const val WRITE_CHAR_UUID = "0000FE01-0000-1000-8000-00805F9B34FB"
+    const val WRITE_CHAR_UUID = "0000FFF2-0000-1000-8000-00805F9B34FB"
 
     /** 设备 -> App 通知特征 UUID（Notify） */
-    const val NOTIFY_CHAR_UUID = "0000FE02-0000-1000-8000-00805F9B34FB"
+    const val NOTIFY_CHAR_UUID = "0000FFF1-0000-1000-8000-00805F9B34FB"
 
     /** 连接后请求的 MTU 值；设备拒绝时自动回退到最小 23 */
     const val REQUEST_MTU = 247
