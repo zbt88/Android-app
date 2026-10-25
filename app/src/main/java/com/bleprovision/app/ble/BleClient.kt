@@ -127,26 +127,15 @@ class BleClient(private val context: Context) {
                 }
             }
 
-            // Android 13+ 系统调用新回调（第二个参数是特征 ID，非对象引用）
-            override fun onCharacteristicWrite(
-                g: BluetoothGatt,
-                characteristicId: Int,
-                value: ByteArray,
-                status: Int
-            ) {
-                writerRef?.onWriteCompleted(status)
-            }
-
-            // Android 12 及以下系统调用旧回调
-            @Deprecated("Deprecated in Java")
+            // 写完成回调：只覆写旧签名即可。API 33+ 新回调的默认实现会向下委托到旧回调，
+            // 因此旧回调在所有版本都会被调用（参考 Google 官方 platform-samples 的写法）
+            @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
             override fun onCharacteristicWrite(
                 g: BluetoothGatt,
                 characteristic: BluetoothGattCharacteristic,
                 status: Int
             ) {
-                if (Build.VERSION.SDK_INT < 33) {
-                    writerRef?.onWriteCompleted(status)
-                }
+                writerRef?.onWriteCompleted(status)
             }
 
             private fun dispatchNotify(characteristic: BluetoothGattCharacteristic, value: ByteArray) {
